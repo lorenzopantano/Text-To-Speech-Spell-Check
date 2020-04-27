@@ -76,11 +76,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginBottom="16dp"
         android:background="#00FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVoice"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarPitch"
         app:srcCompat="@drawable/play" />
 
     <ImageButton
@@ -88,36 +87,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
         android:background="#00FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVoice"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarPitch"
         app:srcCompat="@drawable/stop" />
 
     <Button
         android:id="@+id/btnLanguage"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
         android:text="@string/language"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imgbtnPlay"
         app:layout_constraintTop_toBottomOf="@+id/seekBarPitch" />
 
     <Button
         android:id="@+id/btnVoice"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
         android:layout_marginEnd="32dp"
         android:text="@string/voice"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLanguage" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imgbtStop"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarPitch" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

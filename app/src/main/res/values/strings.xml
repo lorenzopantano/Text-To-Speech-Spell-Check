@@ -5,7 +5,8 @@
     <string name="editText">Enter some text</string>
     <string name="play">PLAY</string>
     <string name="stop">STOP</string>
-    <string name="language">Language</string>
+    <string name="language">CHANGE LANGUAGE</string>
+    <string name="voice">CHANGE VOICE</string>
     <string-array name="languages">
         <item>Italiano</item>
         <item>English</item>

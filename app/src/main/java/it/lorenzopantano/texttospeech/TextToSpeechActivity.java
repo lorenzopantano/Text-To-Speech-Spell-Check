@@ -1,19 +1,20 @@
 package it.lorenzopantano.texttospeech;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,12 +22,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class TextToSpeechActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, TextToSpeech.OnInitListener {
+public class TextToSpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
     private TextToSpeech textToSpeech;
     String[] languages;
     private static final String TAG = "mTTS";
-    List<Locale> localeList = new ArrayList<Locale>();
+
+    //Lingue
+    ArrayList<String> languagesList = new ArrayList<>();
+    Set<Locale> languagesSet = new HashSet<>();
+
+    //Voci
+    List<Voice> voiceList = new ArrayList<>();
+    Set<Voice> voiceSet = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +61,20 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
         if (status == TextToSpeech.SUCCESS) {
             Log.d(TAG, "onInit: INITIALIZATION SUCCESS");
             int res2 = textToSpeech.isLanguageAvailable(Locale.ITALY);
-            Log.d(TAG, "onInit: INITIALIZATION SUCCESS"+ res2);
+            Log.d(TAG, "onInit: ITALIAN AVAILABLE");
+
+            //Tutte le lingue disponibili
+            languagesSet = textToSpeech.getAvailableLanguages();
+            for (Locale lang : languagesSet) {
+                languagesList.add(lang.getDisplayLanguage()); //getDisplayLanguage ritorna una stringa in formato più friendly all'utente (es. it_IT -> Italian)
+            }
+
+            //Tutte le voci disponibili
+            voiceSet = textToSpeech.getVoices();
+            voiceList.addAll(voiceSet);
+
+            System.out.println(voiceList);
+
             int result = textToSpeech.setLanguage(Locale.ITALIAN);
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
@@ -80,6 +101,11 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     /*
     * Serve a gestire quello che succede metre il tts parla
     * */
@@ -87,17 +113,17 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
 
         @Override
         public void onStart(String utteranceId) {
-            Log.d(TAG, "onStart: UTTERANCE PROGRESS LISTENER : "+ utteranceId);
+            Log.d(TAG, "onStart: UTTERANCE PROGRESS LISTENER START: "+ utteranceId);
         }
 
         @Override
         public void onDone(String utteranceId) {
-            Log.d(TAG, "onDone: UTTERANCE PROGRESS LISTENER : "+ utteranceId);
+            Log.d(TAG, "onDone: UTTERANCE PROGRESS LISTENER DONE: "+ utteranceId);
         }
 
         @Override
         public void onError(String utteranceId) {
-            Log.d(TAG, "onError: UTTERANCE PROGRESS LISTENER : "+ utteranceId);
+            Log.d(TAG, "onError: UTTERANCE PROGRESS LISTENER ERROR: "+ utteranceId);
         }
     }
 
@@ -111,16 +137,9 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
         private SeekBar seekBarSpeed, seekBarPitch;
         private Spinner langSpinner;
         private ImageButton imgbtnPlay, imgbtnStop;
-        ArrayList<Locale> languages;
+        private Button btnLanguage, btnVoice;
 
         Holder () {
-
-            //Spinner
-            langSpinner = findViewById(R.id.spinnerLanguage);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(TextToSpeechActivity.this, R.array.languages, R.layout.support_simple_spinner_dropdown_item);
-            adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);  //R.layout.support_simple_spinner_dropdown_item è un layout predefinito per gli spinner
-            langSpinner.setAdapter(adapter);
-            langSpinner.setOnItemSelectedListener(TextToSpeechActivity.this);
 
             //Altre view
             etInputText = findViewById(R.id.etInputText);
@@ -128,7 +147,11 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
             seekBarSpeed = findViewById(R.id.seekBarSpeed);
             imgbtnPlay = findViewById(R.id.imgbtnPlay);
             imgbtnStop = findViewById(R.id.imgbtStop);
+            btnLanguage = findViewById(R.id.btnLanguage);
+            btnVoice = findViewById(R.id.btnVoice);
 
+            btnLanguage.setOnClickListener(this);
+            btnVoice.setOnClickListener(this);
             imgbtnPlay.setOnClickListener(this);
             imgbtnStop.setOnClickListener(this);
         }
@@ -179,35 +202,17 @@ public class TextToSpeechActivity extends AppCompatActivity implements AdapterVi
 
             //Stop button
             else if (v.getId() == R.id.imgbtStop) {
+                if (textToSpeech.isSpeaking()) {
+                    textToSpeech.stop();
+                }
+            }
 
+            //Change Language button
+            else if (v.getId() == R.id.btnLanguage) {
+                Intent langIntent = new Intent(TextToSpeechActivity.this, ChangeLanguageActivity.class);
+                langIntent.putStringArrayListExtra("avLanguages", languagesList);
+                startActivity(langIntent);
             }
         }
-    }
-
-    /*
-    * onItemSelected e onNothingSelected sono i due metodi
-    * da sovrascrivere per implementare View.onSelectedItemLister
-    * che viene usato per selezionare la lingua
-    */
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch (position) {
-            case 0:
-                if (textToSpeech.setLanguage(Locale.ITALIAN) >= 0) {
-                    Toast.makeText(this, "Language: "+ languages[position] ,Toast.LENGTH_SHORT).show();
-                } else Toast.makeText(this, "Language: "+ languages[position] + "not supported" ,Toast.LENGTH_SHORT).show();
-                break;
-
-            case 1:
-                if (textToSpeech.setLanguage(Locale.ENGLISH) >= 0) {
-                    Toast.makeText(this, "Language: "+ languages[position] ,Toast.LENGTH_SHORT).show();
-                } else Toast.makeText(this, "Language: "+ languages[position] + "not supported" ,Toast.LENGTH_SHORT).show();
-                break;
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        Toast.makeText(this, "Nothing selected" ,Toast.LENGTH_SHORT).show();
     }
 }
