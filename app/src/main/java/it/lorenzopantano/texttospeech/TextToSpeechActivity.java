@@ -1,6 +1,7 @@
 package it.lorenzopantano.texttospeech;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -14,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,12 +25,14 @@ import java.util.Set;
 
 public class TextToSpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
-    private TextToSpeech textToSpeech;
+    private static TextToSpeech textToSpeech;
     String[] languages;
     private static final String TAG = "mTTS";
+    private static final int CLANGACT = 101;
+    private static final int CVOICEACT = 102;
 
     //Lingue
-    ArrayList<String> languagesList = new ArrayList<>();
+    ArrayList<Locale> languagesList = new ArrayList<Locale>();
     Set<Locale> languagesSet = new HashSet<>();
 
     //Voci
@@ -63,18 +66,6 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             int res2 = textToSpeech.isLanguageAvailable(Locale.ITALY);
             Log.d(TAG, "onInit: ITALIAN AVAILABLE");
 
-            //Tutte le lingue disponibili
-            languagesSet = textToSpeech.getAvailableLanguages();
-            for (Locale lang : languagesSet) {
-                languagesList.add(lang.getDisplayLanguage()); //getDisplayLanguage ritorna una stringa in formato più friendly all'utente (es. it_IT -> Italian)
-            }
-
-            //Tutte le voci disponibili
-            voiceSet = textToSpeech.getVoices();
-            voiceList.addAll(voiceSet);
-
-            System.out.println(voiceList);
-
             int result = textToSpeech.setLanguage(Locale.ITALIAN);
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
@@ -83,9 +74,37 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             Log.e(TAG, "onInit: INITIALIZATION FAILED");
         }
 
+        ttsTh.start();
+
         //Vedi classe sotto UtteranceProgList()
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgList());
     }
+
+    /*
+    * Le lingue e le voci disponibili vengono salvate in due array
+    * diversi, in un thread diverso da quello prinicipale
+    *  */
+    Thread ttsTh = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            //Tutte le lingue disponibili
+            languagesSet = textToSpeech.getAvailableLanguages();
+            for (Locale lang : languagesSet) {
+                languagesList.add(lang);
+            }
+            Log.d(TAG, "run: LANGUAGES OKAY");
+
+            //Tutte le voci disponibili
+            voiceSet = textToSpeech.getVoices();
+            voiceList.addAll(voiceSet);
+            Log.d(TAG, "run: VOICES OKAY");
+
+            Log.d(TAG, "run: INTERRUPTING THREAD");
+            ttsTh.interrupt();
+            Log.d(TAG, "run: THREAD STOPPED");
+        }
+    });
+
 
     /*
     * Alla chiusura (o rotazione dell'app ???) distruggere l'engine del tts
@@ -135,7 +154,6 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
         private EditText etInputText;
         private SeekBar seekBarSpeed, seekBarPitch;
-        private Spinner langSpinner;
         private ImageButton imgbtnPlay, imgbtnStop;
         private Button btnLanguage, btnVoice;
 
@@ -209,10 +227,22 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
             //Change Language button
             else if (v.getId() == R.id.btnLanguage) {
+                if (textToSpeech.isSpeaking()) textToSpeech.stop();
                 Intent langIntent = new Intent(TextToSpeechActivity.this, ChangeLanguageActivity.class);
-                langIntent.putStringArrayListExtra("avLanguages", languagesList);
-                startActivity(langIntent);
+                langIntent.putExtra("avLanguages", languagesList);
+                startActivityForResult(langIntent, CLANGACT);
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: ON ACTIVITY RESULT "+ languagesList.get(data.getIntExtra("selectedLang", -1)));
+        if (requestCode == CLANGACT) {
+            //TODO: cambia la lingua
+            textToSpeech.setLanguage(languagesList.get(data.getIntExtra("selectedLang", -1)));
+            Toast.makeText(this, "LANGUAGE SET TO : "+ languagesList.get(data.getIntExtra("selectedLang", -1)).getDisplayLanguage(), Toast.LENGTH_SHORT).show();
         }
     }
 }
