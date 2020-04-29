@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -41,6 +40,14 @@ public class ChangeLanguageActivity extends AppCompatActivity {
         langRecycler.setLayoutManager(layoutManager);
         langAdapter = new LangAdapter(languages);
         langRecycler.setAdapter(langAdapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent selectedLang = new Intent();
+        selectedLang.putExtra("selectedLang", -1);
+        setResult(RESULT_OK, selectedLang);
+        finish();
     }
 
 
@@ -74,7 +81,7 @@ public class ChangeLanguageActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.tvLang.setText(languages.get(position).getDisplayLanguage());
+            holder.tvLangRecy.setText(languages.get(position).getDisplayLanguage());
         }
 
         @Override
@@ -83,12 +90,12 @@ public class ChangeLanguageActivity extends AppCompatActivity {
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvLang;
+            TextView tvLangRecy;
             ImageView ivFlag;
 
             public ViewHolder(@NonNull ConstraintLayout constraintLayout) {
                 super(constraintLayout);
-                tvLang = constraintLayout.findViewById(R.id.tvLang);
+                tvLangRecy = constraintLayout.findViewById(R.id.tvLangRecy);
                 ivFlag = constraintLayout.findViewById(R.id.ivFlag);
             }
 

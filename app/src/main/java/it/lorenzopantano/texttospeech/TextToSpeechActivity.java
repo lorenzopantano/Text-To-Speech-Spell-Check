@@ -15,42 +15,52 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 public class TextToSpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
     private static TextToSpeech textToSpeech;
-    String[] languages;
     private static final String TAG = "mTTS";
     private static final int CLANGACT = 101;
     private static final int CVOICEACT = 102;
+    private static final Locale DEFAULT_LANG = Locale.ITALIAN;
+    private EditText etInputText;
+    private TextView tvLang, tvVoice;
+    private String editTextInput;
+    private Locale locale;
 
     //Lingue
     ArrayList<Locale> languagesList = new ArrayList<Locale>();
     Set<Locale> languagesSet = new HashSet<>();
 
     //Voci
-    List<Voice> voiceList = new ArrayList<>();
+    ArrayList<Voice> voiceList = new ArrayList<>();
     Set<Voice> voiceSet = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tts_layout);
-        languages = getResources().getStringArray(R.array.languages);
-        Holder holder = new Holder();
+        etInputText = findViewById(R.id.etInputText);
+        tvLang = findViewById(R.id.tvLang);
+        tvVoice = findViewById(R.id.tvVoice);
+
+        new Holder();
+
+        if (savedInstanceState != null) {
+            etInputText.setText(savedInstanceState.get("editText").toString());
+            locale = Locale.forLanguageTag(savedInstanceState.getString("lang"));
+            tvLang.setText("Language: " +locale.getDisplayLanguage().toUpperCase());
+        }
 
         //Inizializza il tts, primo this è il context, il secondo l'onInitListener
-        textToSpeech  = new TextToSpeech(this, this);
-
-        //Imposta nel menu a scelta delle lingue, tutte quelle disponibili
-
+        textToSpeech = new TextToSpeech(getApplicationContext(), this);
     }
 
     /*Inizializza il tts:
@@ -63,10 +73,17 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             Log.d(TAG, "onInit: INITIALIZATION SUCCESS");
-            int res2 = textToSpeech.isLanguageAvailable(Locale.ITALY);
-            Log.d(TAG, "onInit: ITALIAN AVAILABLE");
-
-            int result = textToSpeech.setLanguage(Locale.ITALIAN);
+            int result;
+            if (locale == null) {
+                result = textToSpeech.setLanguage(DEFAULT_LANG); //Default Language is Italian
+                tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage());
+                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+            }
+            else {
+                result = textToSpeech.setLanguage(locale);
+                tvLang.setText("Language: "+locale.getDisplayLanguage());
+                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+            }
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
             }
@@ -89,9 +106,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         public void run() {
             //Tutte le lingue disponibili
             languagesSet = textToSpeech.getAvailableLanguages();
-            for (Locale lang : languagesSet) {
-                languagesList.add(lang);
-            }
+            languagesList.addAll(languagesSet);
             Log.d(TAG, "run: LANGUAGES OKAY");
 
             //Tutte le voci disponibili
@@ -105,6 +120,25 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         }
     });
 
+    //Salva la stringa nella EditText
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("editText", etInputText.getText().toString());
+        outState.putString("lang", textToSpeech.getVoice().getLocale().toLanguageTag());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        editTextInput = etInputText.getText().toString();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (editTextInput != null) etInputText.setText(editTextInput);
+    }
 
     /*
     * Alla chiusura (o rotazione dell'app ???) distruggere l'engine del tts
@@ -118,11 +152,6 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             textToSpeech.stop();
             textToSpeech.shutdown();
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     /*
@@ -152,15 +181,14 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
     class Holder implements View.OnClickListener{
 
-        private EditText etInputText;
         private SeekBar seekBarSpeed, seekBarPitch;
         private ImageButton imgbtnPlay, imgbtnStop;
         private Button btnLanguage, btnVoice;
 
+
         Holder () {
 
             //Altre view
-            etInputText = findViewById(R.id.etInputText);
             seekBarPitch = findViewById(R.id.seekBarPitch);
             seekBarSpeed = findViewById(R.id.seekBarSpeed);
             imgbtnPlay = findViewById(R.id.imgbtnPlay);
@@ -173,6 +201,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             imgbtnPlay.setOnClickListener(this);
             imgbtnStop.setOnClickListener(this);
         }
+
 
         @Override
         public void onClick(View v) {
@@ -232,17 +261,52 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 langIntent.putExtra("avLanguages", languagesList);
                 startActivityForResult(langIntent, CLANGACT);
             }
+
+            ///Change Voice button
+            else if (v.getId() == R.id.btnVoice) {
+                if (textToSpeech.isSpeaking()) textToSpeech.stop();
+                Log.d(TAG, "onClick: CHANGE VOICE BUTTON PREPARING INTENT");
+                Intent voiceIntent = new Intent(TextToSpeechActivity.this, ChangeVoiceActivity.class);
+                voiceIntent.putExtra("avVoices", voiceList);
+                Log.d(TAG, "onClick: CHANGE VOICE BUTTON PUT IN EXTRA: "+ voiceList);
+                startActivityForResult(voiceIntent, CVOICEACT);
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: ON ACTIVITY RESULT "+ languagesList.get(data.getIntExtra("selectedLang", -1)));
         if (requestCode == CLANGACT) {
+
+
             //TODO: cambia la lingua
-            textToSpeech.setLanguage(languagesList.get(data.getIntExtra("selectedLang", -1)));
-            Toast.makeText(this, "LANGUAGE SET TO : "+ languagesList.get(data.getIntExtra("selectedLang", -1)).getDisplayLanguage(), Toast.LENGTH_SHORT).show();
+            int result = data.getIntExtra("selectedLang", -1);
+            if (result == -1) {
+                textToSpeech.setLanguage(DEFAULT_LANG);
+                tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage());
+                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+            } else {
+                Locale selectedLoc = languagesList.get(data.getIntExtra("selectedLang", -1));
+                textToSpeech.setLanguage(selectedLoc);
+                tvLang.setText("Language: "+selectedLoc.getDisplayLanguage());
+                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+                Toast.makeText(this, "LANGUAGE: "+selectedLoc.getDisplayLanguage().toUpperCase(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        else if (requestCode == CVOICEACT) {
+            int result = data.getIntExtra("selectedVoice", -1);
+            if (result == -1) {
+                textToSpeech.setVoice(textToSpeech.getDefaultVoice());
+                tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage());
+                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+            } else {
+                Voice selectedVoice = voiceList.get(data.getIntExtra("selectedVoice", -1));
+                textToSpeech.setVoice(selectedVoice);
+                textToSpeech.setLanguage(selectedVoice.getLocale()); //Selezionando una voce si imposta automaticamente la lingua
+                Toast.makeText(this, "VOICE: "+selectedVoice.getName().toUpperCase(), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

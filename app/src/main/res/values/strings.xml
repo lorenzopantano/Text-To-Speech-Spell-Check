@@ -6,6 +6,8 @@
     <string name="play">PLAY</string>
     <string name="stop">STOP</string>
     <string name="language">CHANGE LANGUAGE</string>
+    <string name="curLanguage">Language : </string>
+    <string name="curVoice">Voice : </string>
     <string name="voice">CHANGE VOICE</string>
     <string-array name="languages">
         <item>Italiano</item>
