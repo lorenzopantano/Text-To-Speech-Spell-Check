@@ -4,23 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".TextToSpeechActivity">
 
     <EditText
         android:id="@+id/etInputText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
+        android:background="@drawable/edittext_rounded"
+        android:backgroundTint="@color/black_35"
         android:ellipsize="none"
         android:ems="10"
+        android:fontFamily="@font/raleway_semibold"
+        android:gravity="top"
         android:hint="@string/editText"
         android:inputType="textPersonName"
-        android:textColor="@color/colorPrimaryDark"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
     <SeekBar
         android:id="@+id/seekBarSpeed"
@@ -40,12 +48,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/raleway_semibold"
         android:text="@string/speed"
+        android:textColor="@color/black"
         android:textSize="18sp"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
+        app:layout_constraintTop_toBottomOf="@+id/imgbtnStop" />
 
     <TextView
         android:id="@+id/tvPitch"
@@ -55,7 +64,8 @@
         android:layout_marginTop="16dp"
         android:text="@string/pitch"
         android:textSize="18sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/raleway_semibold"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBarSpeed" />
 
@@ -71,38 +81,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPitch" />
 
-    <ImageButton
-        android:id="@+id/imgbtnPlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="16dp"
-        android:background="#00FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVoice"
-        app:srcCompat="@drawable/play" />
-
-    <ImageButton
-        android:id="@+id/imgbtStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
-        android:background="#00FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVoice"
-        app:srcCompat="@drawable/stop" />
-
     <Button
         android:id="@+id/btnLanguage"
         android:layout_width="0dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/black_65"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:text="@string/language"
+        android:textColor="@color/white"
+        android:fontFamily="@font/raleway_semibold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBarPitch" />
@@ -111,10 +101,14 @@
         android:id="@+id/btnVoice"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/black_65"
         android:layout_marginStart="32dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="32dp"
         android:text="@string/voice"
+        android:textColor="@color/white"
+        android:fontFamily="@font/raleway_semibold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -127,6 +121,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:text="@string/curLanguage"
+        android:fontFamily="@font/raleway_semibold"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnVoice" />
 
@@ -138,7 +134,48 @@
         android:layout_marginEnd="32dp"
         android:text="@string/curVoice"
         app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/raleway_semibold"
+        android:textColor="@color/black"
         app:layout_constraintStart_toEndOf="@+id/tvVoiceRecy"
         app:layout_constraintTop_toBottomOf="@+id/btnVoice" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/title"
+        android:textColor="@color/black"
+        android:textSize="36dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/raleway_bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/imgbtnPlay"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/playBlue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/play"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
+
+    <Button
+        android:id="@+id/imgbtnStop"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/stopRed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/stop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

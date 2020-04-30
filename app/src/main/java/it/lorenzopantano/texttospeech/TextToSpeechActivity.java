@@ -182,7 +182,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     class Holder implements View.OnClickListener{
 
         private SeekBar seekBarSpeed, seekBarPitch;
-        private ImageButton imgbtnPlay, imgbtnStop;
+        private Button imgbtnPlay, imgbtnStop;
         private Button btnLanguage, btnVoice;
 
 
@@ -192,7 +192,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             seekBarPitch = findViewById(R.id.seekBarPitch);
             seekBarSpeed = findViewById(R.id.seekBarSpeed);
             imgbtnPlay = findViewById(R.id.imgbtnPlay);
-            imgbtnStop = findViewById(R.id.imgbtStop);
+            imgbtnStop = findViewById(R.id.imgbtnStop);
             btnLanguage = findViewById(R.id.btnLanguage);
             btnVoice = findViewById(R.id.btnVoice);
 
@@ -248,7 +248,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             }
 
             //Stop button
-            else if (v.getId() == R.id.imgbtStop) {
+            else if (v.getId() == R.id.imgbtnStop) {
                 if (textToSpeech.isSpeaking()) {
                     textToSpeech.stop();
                 }
