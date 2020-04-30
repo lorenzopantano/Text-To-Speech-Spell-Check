@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
@@ -34,6 +37,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     private TextView tvLang, tvVoice;
     private String editTextInput;
     private Locale locale;
+    private Locale lastLang = DEFAULT_LANG;
 
     //Lingue
     ArrayList<Locale> languagesList = new ArrayList<Locale>();
@@ -49,7 +53,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         setContentView(R.layout.tts_layout);
         etInputText = findViewById(R.id.etInputText);
         tvLang = findViewById(R.id.tvLang);
-        tvVoice = findViewById(R.id.tvVoice);
+        //tvVoice = findViewById(R.id.tvVoice);
 
         new Holder();
 
@@ -77,12 +81,12 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             if (locale == null) {
                 result = textToSpeech.setLanguage(DEFAULT_LANG); //Default Language is Italian
                 tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage());
-                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+                //tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
             }
             else {
                 result = textToSpeech.setLanguage(locale);
                 tvLang.setText("Language: "+locale.getDisplayLanguage());
-                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+                //tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
             }
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
@@ -156,24 +160,45 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
     /*
     * Serve a gestire quello che succede metre il tts parla
+    * E' un thread apparte quindi non può interagire con la UI, per questo motivo creiamo un handler.
+    * (vedi sotto questa classe)
     * */
     class UtteranceProgList extends UtteranceProgressListener {
 
         @Override
         public void onStart(String utteranceId) {
-            Log.d(TAG, "onStart: UTTERANCE PROGRESS LISTENER START: "+ utteranceId);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(TextToSpeechActivity.this, "Staring...", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
         }
 
         @Override
         public void onDone(String utteranceId) {
-            Log.d(TAG, "onDone: UTTERANCE PROGRESS LISTENER DONE: "+ utteranceId);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(TextToSpeechActivity.this, "Done", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
         }
 
         @Override
         public void onError(String utteranceId) {
-            Log.d(TAG, "onError: UTTERANCE PROGRESS LISTENER ERROR: "+ utteranceId);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(TextToSpeechActivity.this, "An error occurred, try again later and check you internet connection", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            });
         }
     }
+
 
     /*
     * Holder per UI
@@ -182,9 +207,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     class Holder implements View.OnClickListener{
 
         private SeekBar seekBarSpeed, seekBarPitch;
-        private Button imgbtnPlay, imgbtnStop;
-        private Button btnLanguage, btnVoice;
-
+        private Button imgbtnPlay, imgbtnStop, btnLanguage, btnUpload;
 
         Holder () {
 
@@ -194,10 +217,8 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             imgbtnPlay = findViewById(R.id.imgbtnPlay);
             imgbtnStop = findViewById(R.id.imgbtnStop);
             btnLanguage = findViewById(R.id.btnLanguage);
-            btnVoice = findViewById(R.id.btnVoice);
 
             btnLanguage.setOnClickListener(this);
-            btnVoice.setOnClickListener(this);
             imgbtnPlay.setOnClickListener(this);
             imgbtnStop.setOnClickListener(this);
         }
@@ -262,15 +283,16 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 startActivityForResult(langIntent, CLANGACT);
             }
 
-            ///Change Voice button
-            else if (v.getId() == R.id.btnVoice) {
+            /*Change Voice button
+            * Deleted
+            else if (v.getId() == R.id.btnUpload) {
                 if (textToSpeech.isSpeaking()) textToSpeech.stop();
                 Log.d(TAG, "onClick: CHANGE VOICE BUTTON PREPARING INTENT");
                 Intent voiceIntent = new Intent(TextToSpeechActivity.this, ChangeVoiceActivity.class);
                 voiceIntent.putExtra("avVoices", voiceList);
                 Log.d(TAG, "onClick: CHANGE VOICE BUTTON PUT IN EXTRA: "+ voiceList);
                 startActivityForResult(voiceIntent, CVOICEACT);
-            }
+            }*/
         }
     }
 
@@ -279,22 +301,24 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CLANGACT) {
 
-
             //TODO: cambia la lingua
             int result = data.getIntExtra("selectedLang", -1);
             if (result == -1) {
-                textToSpeech.setLanguage(DEFAULT_LANG);
-                tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage());
-                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+                textToSpeech.setLanguage(lastLang);
+                tvLang.setText("Language: "+lastLang.getDisplayLanguage());
+                //tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
             } else {
                 Locale selectedLoc = languagesList.get(data.getIntExtra("selectedLang", -1));
                 textToSpeech.setLanguage(selectedLoc);
-                tvLang.setText("Language: "+selectedLoc.getDisplayLanguage());
-                tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
+                lastLang = selectedLoc;
+                tvLang.setText("Language: "+selectedLoc.getDisplayLanguage().substring(0,1).toUpperCase() + selectedLoc.getDisplayLanguage().substring(1));
+                //tvVoice.setText("Voice: "+textToSpeech.getVoice().getName());
                 Toast.makeText(this, "LANGUAGE: "+selectedLoc.getDisplayLanguage().toUpperCase(), Toast.LENGTH_SHORT).show();
             }
         }
 
+        /*
+        * Codice per il ritorno della select voice
         else if (requestCode == CVOICEACT) {
             int result = data.getIntExtra("selectedVoice", -1);
             if (result == -1) {
@@ -308,5 +332,6 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 Toast.makeText(this, "VOICE: "+selectedVoice.getName().toUpperCase(), Toast.LENGTH_SHORT).show();
             }
         }
+        */
     }
 }

@@ -10,6 +10,8 @@
     <string name="curVoice">Voice : </string>
     <string name="voice">CHANGE VOICE</string>
     <string name="title">Text To Speech</string>
+    <string name="upload">UPLOAD FILE (.TXT)</string>
+    <string name="langActivity">Choose a Language</string>
     <string-array name="languages">
         <item>Italiano</item>
         <item>English</item>

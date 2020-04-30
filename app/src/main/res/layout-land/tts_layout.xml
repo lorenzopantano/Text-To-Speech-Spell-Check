@@ -15,7 +15,6 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/edittext_rounded"
-        android:backgroundTint="@color/white_65"
         android:ellipsize="none"
         android:ems="10"
         android:fontFamily="@font/raleway_semibold"
@@ -29,11 +28,10 @@
         android:paddingBottom="16dp"
         android:scrollbars="vertical"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:backgroundTint="@color/white_65"
+        app:layout_constraintEnd_toStartOf="@+id/btnLanguage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" /><!-- Multiline input -->
-
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
     <SeekBar
         android:id="@+id/seekBarSpeed"
@@ -41,10 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="128dp"
         android:progress="50"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toStartOf="@+id/imgbtnPlay"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSpeed" />
 
@@ -53,20 +50,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/raleway_semibold"
         android:text="@string/speed"
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgbtnStop" />
+        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
 
     <TextView
         android:id="@+id/tvPitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/raleway_semibold"
         android:text="@string/pitch"
         android:textColor="@color/white"
@@ -80,9 +77,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="128dp"
         android:progress="50"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imgbtnStop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPitch" />
 
@@ -90,31 +87,28 @@
         android:id="@+id/btnLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
         android:backgroundTint="@color/white_65"
         android:fontFamily="@font/raleway_semibold"
+        android:padding="16dp"
         android:text="@string/language"
         android:textColor="@color/black_65"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBarPitch" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
     <TextView
         android:id="@+id/tvLang"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="32dp"
         android:fontFamily="@font/raleway_semibold"
         android:text="@string/curLanguage"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLanguage" />
+        app:layout_constraintTop_toBottomOf="@+id/seekBarPitch" />
 
     <TextView
         android:id="@+id/tvTitle"
@@ -134,29 +128,34 @@
         android:id="@+id/imgbtnPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
+        android:padding="0dp"
+        android:text="@string/play"
         android:backgroundTint="#5C74F6"
         android:textColor="@color/white"
         android:fontFamily="@font/raleway_semibold"
-        android:padding="0dp"
-        android:text="@string/play"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
+        app:layout_constraintTop_toBottomOf="@+id/btnLanguage" />
 
     <Button
         android:id="@+id/imgbtnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
+        android:text="@string/stop"
         android:backgroundTint="#A6FF4D4D"
         android:fontFamily="@font/raleway_semibold"
         android:textColor="@color/white"
-        android:text="@string/stop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgbtnPlay" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,9 @@
     <color name="black">#000000</color>
     <color name="black_35">#59000000</color>
     <color name="black_65">#A6000000</color>
-    <color name="playBlue">#662400FF</color>
-    <color name="stopRed">#66FF0000</color>
+    <color name="white_35">#59FFFFFF</color>
+    <color name="white_65">#A6FFFFFF</color>
+    <color name="playBlue">#A62400FF</color>
+    <color name="stopRed">#A6FF0000</color>
+    <color name="classicBlue">#0F4C81</color>
 </resources>
