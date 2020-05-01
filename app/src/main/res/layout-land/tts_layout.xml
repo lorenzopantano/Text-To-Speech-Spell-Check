@@ -13,14 +13,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="64dp"
         android:background="@drawable/edittext_rounded"
+        android:backgroundTint="@color/white_65"
         android:ellipsize="none"
         android:ems="10"
         android:fontFamily="@font/raleway_semibold"
         android:gravity="top|left"
         android:hint="@string/editText"
-        android:textColorHint="@color/black_35"
         android:inputType="textMultiLine"
         android:maxLines="5"
         android:paddingLeft="16dp"
@@ -28,8 +28,8 @@
         android:paddingBottom="16dp"
         android:scrollbars="vertical"
         android:textColor="@color/black"
-        android:backgroundTint="@color/white_65"
-        app:layout_constraintEnd_toStartOf="@+id/btnLanguage"
+        android:textColorHint="@color/black_35"
+        app:layout_constraintEnd_toStartOf="@+id/btnSpellCheck"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
@@ -41,7 +41,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="128dp"
         android:progress="50"
-        app:layout_constraintEnd_toStartOf="@+id/imgbtnPlay"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlay"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSpeed" />
 
@@ -79,7 +79,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="128dp"
         android:progress="50"
-        app:layout_constraintEnd_toStartOf="@+id/imgbtnStop"
+        app:layout_constraintEnd_toStartOf="@+id/btnStop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPitch" />
 
@@ -87,7 +87,6 @@
         android:id="@+id/btnLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
         android:backgroundTint="@color/white_65"
@@ -95,8 +94,9 @@
         android:padding="16dp"
         android:text="@string/language"
         android:textColor="@color/black_65"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/btnStop" />
 
     <TextView
         android:id="@+id/tvLang"
@@ -125,37 +125,53 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/imgbtnPlay"
+        android:id="@+id/btnPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
+        android:backgroundTint="#5C74F6"
+        android:fontFamily="@font/raleway_semibold"
         android:padding="0dp"
         android:text="@string/play"
-        android:backgroundTint="#5C74F6"
         android:textColor="@color/white"
-        android:fontFamily="@font/raleway_semibold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLanguage" />
+        app:layout_constraintTop_toBottomOf="@+id/btnSpellCheck" />
 
     <Button
-        android:id="@+id/imgbtnStop"
+        android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_button"
-        android:text="@string/stop"
         android:backgroundTint="#A6FF4D4D"
         android:fontFamily="@font/raleway_semibold"
+        android:text="@string/stop"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgbtnPlay" />
+        app:layout_constraintTop_toBottomOf="@+id/btnPlay" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btnSpellCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/white_65"
+        android:fontFamily="@font/raleway_semibold"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="18dp"
+        android:text="@string/spellCheck"
+        android:textColor="@color/black_65"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

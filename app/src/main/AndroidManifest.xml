@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
-        <activity android:name=".ChangeVoiceActivity"></activity>
+        <activity android:name=".SpellCheckActivity"></activity>
         <activity
             android:name=".ChangeLanguageActivity"
             android:parentActivityName=".TextToSpeechActivity" />
@@ -20,6 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

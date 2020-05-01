@@ -59,7 +59,7 @@
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgbtnStop" />
+        app:layout_constraintTop_toBottomOf="@+id/btnStop" />
 
     <TextView
         android:id="@+id/tvPitch"
@@ -118,20 +118,23 @@
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
         android:fontFamily="@font/raleway_bold"
         android:text="@string/title"
         android:textColor="@color/white"
         android:textSize="36dp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/imgbtnPlay"
+        android:id="@+id/btnPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -146,7 +149,7 @@
         app:layout_constraintTop_toBottomOf="@+id/etInputText" />
 
     <Button
-        android:id="@+id/imgbtnStop"
+        android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -157,6 +160,21 @@
         android:textColor="@color/white"
         android:text="@string/stop"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etInputText" />
+
+    <Button
+        android:id="@+id/btnSpellCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp"
+        android:text="@string/spellCheck"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/white_65"
+        android:textColor="@color/black_65"
+        android:fontFamily="@font/raleway_semibold"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlay"
+        app:layout_constraintStart_toEndOf="@+id/btnStop"
         app:layout_constraintTop_toBottomOf="@+id/etInputText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

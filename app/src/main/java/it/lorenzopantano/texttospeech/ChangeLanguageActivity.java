@@ -46,7 +46,7 @@ public class ChangeLanguageActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent selectedLang = new Intent();
         selectedLang.putExtra("selectedLang", -1);
-        setResult(RESULT_OK, selectedLang);
+        setResult(RESULT_CANCELED, selectedLang);
         finish();
     }
 
@@ -75,13 +75,13 @@ public class ChangeLanguageActivity extends AppCompatActivity {
             Intent selectedLang = new Intent();
             int itemPosition = langRecycler.getChildLayoutPosition(v);
             selectedLang.putExtra("selectedLang", itemPosition);
-            setResult(101, selectedLang);
+            setResult(RESULT_OK, selectedLang);
             finish();
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.tvLangRecy.setText(languages.get(position).getDisplayLanguage());
+            holder.tvLangRecy.setText(languages.get(position).getDisplayLanguage().substring(0,1).toUpperCase() + languages.get(position).getDisplayLanguage().substring(1));
         }
 
         @Override
@@ -91,12 +91,10 @@ public class ChangeLanguageActivity extends AppCompatActivity {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvLangRecy;
-            ImageView ivFlag;
 
             public ViewHolder(@NonNull ConstraintLayout constraintLayout) {
                 super(constraintLayout);
                 tvLangRecy = constraintLayout.findViewById(R.id.tvLangRecy);
-                ivFlag = constraintLayout.findViewById(R.id.ivFlag);
             }
 
         }
