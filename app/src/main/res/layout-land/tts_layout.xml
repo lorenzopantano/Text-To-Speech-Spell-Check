@@ -7,32 +7,6 @@
     android:background="@drawable/gradient_background"
     tools:context=".TextToSpeechActivity">
 
-    <EditText
-        android:id="@+id/etInputText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="64dp"
-        android:background="@drawable/edittext_rounded"
-        android:backgroundTint="@color/white_65"
-        android:ellipsize="none"
-        android:ems="10"
-        android:fontFamily="@font/raleway_semibold"
-        android:gravity="top|left"
-        android:hint="@string/editText"
-        android:inputType="textMultiLine"
-        android:maxLines="5"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:scrollbars="vertical"
-        android:textColor="@color/black"
-        android:textColorHint="@color/black_35"
-        app:layout_constraintEnd_toStartOf="@+id/btnSpellCheck"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
-
     <SeekBar
         android:id="@+id/seekBarSpeed"
         android:layout_width="0dp"
@@ -170,8 +144,32 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="18dp"
         android:text="@string/spellCheck"
-        android:textColor="@color/black_65"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+    <AutoCompleteTextView
+        android:id="@+id/etInputText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/edittext_rounded"
+        android:backgroundTint="@color/white_65"
+        android:ellipsize="none"
+        android:ems="10"
+        android:fontFamily="@font/raleway_semibold"
+        android:gravity="top|left"
+        android:hint="@string/editText"
+        android:inputType="textMultiLine"
+        android:maxLines="5"
+        android:padding="16dp"
+        android:scrollbars="vertical"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black_35"
+        app:layout_constraintEnd_toStartOf="@+id/btnSpellCheck"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

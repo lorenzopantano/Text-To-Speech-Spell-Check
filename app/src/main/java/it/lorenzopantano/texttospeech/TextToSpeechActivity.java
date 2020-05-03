@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.SentenceSuggestionsInfo;
 import android.view.textservice.SpellCheckerSession;
 import android.view.textservice.SuggestionsInfo;
@@ -49,13 +51,14 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     private static final int CLANGACT = 101;
     private static final int SPLCHK = 102;
     private static final Locale DEFAULT_LANG = Locale.ITALIAN;
+    private static final int SUGGESTION_LIMIT = 5;
     private EditText etInputText;
     private TextView tvLang;
     private String editTextInput;
     private Locale locale;
     private Locale lastLang = DEFAULT_LANG;
 
-    private SpellCheckerSession spellCheckerSession;
+    private static SpellCheckerSession spellCheckerSession;
 
     //Lingue
     ArrayList<Locale> languagesList = new ArrayList<Locale>();
@@ -113,10 +116,10 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
             Log.e(TAG, "onInit: INITIALIZATION FAILED");
         }
 
-        //Thread per scaricare l'elenco delle lingue disponibili
+        //Thread per scaricare l'elenco delle lingue disponibili per il tts
         ttsTh.start();
 
-        //Vedi classe sotto UtteranceProgList()
+        //Vedi classe UtteranceProgList()
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgList());
     }
 
@@ -158,16 +161,18 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         if (editTextInput != null) etInputText.setText(editTextInput);
 
         //Inizializza lo Spell Check Service
-
         Log.d(TAG, "onResume: SPELL CHECKER INIT WITH LANG: "+ (lastLang == null ? DEFAULT_LANG : lastLang).getDisplayLanguage());
         final TextServicesManager textServicesManager = (TextServicesManager) getSystemService(Context.TEXT_SERVICES_MANAGER_SERVICE);
-        spellCheckerSession = textServicesManager.newSpellCheckerSession(null, lastLang == null ? DEFAULT_LANG : lastLang, this, true);
+        spellCheckerSession = textServicesManager.newSpellCheckerSession(null, lastLang == null ? DEFAULT_LANG : lastLang, this, false);
+
+
     }
 
     /*
-    * Alla chiusura (o rotazione dell'app ???) distruggere l'engine del tts
+    * Alla chiusura distruggere l'engine del tts
     * il metodo stop() ferma se stava parlando,
     * il metodo shutdown() distrugge l'oggetto TextToSpeechEngine rendendolo inutilizzabile.
+    * Lo stesso per la session dello SpellChecker con il metodo close().
     * */
     @Override
     protected void onDestroy() {
@@ -179,15 +184,44 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         if (spellCheckerSession != null) spellCheckerSession.close();
     }
 
+    @Deprecated
     @Override
     public void onGetSuggestions(SuggestionsInfo[] results) {
-
+        //Method Deprecated in API Level 16
+        //https://developer.android.com/reference/android/view/textservice/SpellCheckerSession#getSuggestions
     }
 
     @Override
     public void onGetSentenceSuggestions(SentenceSuggestionsInfo[] results) {
         //TODO: Display Suggestions
-        Log.d(TAG, "onGetSentenceSuggestions: " + results[0].getSuggestionsInfoAt(0));
+        final StringBuffer sb = new StringBuffer("");
+        for(SentenceSuggestionsInfo result:results){
+            int n = result.getSuggestionsCount();
+            for(int i=0; i < n; i++){
+                int m = result.getSuggestionsInfoAt(i).getSuggestionsCount();
+                //Mostra risultati solo per le parole "sbagliate"
+                //if((result.getSuggestionsInfoAt(i).getSuggestionsAttributes() & SuggestionsInfo.RESULT_ATTR_LOOKS_LIKE_TYPO) != SuggestionsInfo.RESULT_ATTR_LOOKS_LIKE_TYPO)
+                //    continue;
+                for(int k=0; k < m; k++) {
+                    sb.append(result.getSuggestionsInfoAt(i).getSuggestionAt(k))
+                            .append("\n");
+                }
+                sb.append("\n");
+            }
+        }
+        Log.d(TAG, "onGetSentenceSuggestions: " + sb);
+    }
+
+    //Metodo per chiudere la tastiera
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     /*
@@ -324,13 +358,20 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
                     //Perform Spell Check Button
                 case R.id.btnSpellCheck:
-                    TextInfo textInfo = new TextInfo(etInputText.getText().toString());
-                    TextInfo[] textInfos = {textInfo};
-                    spellCheckerSession.getSentenceSuggestions(textInfos, 3);
-                    Log.d(TAG, "onClick: SPELL CHECK CLICKED");
+                    String text = etInputText.getText().toString();
+                    if (text.isEmpty()) {
+                        Toast.makeText(TextToSpeechActivity.this, "Empty Text!", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    else {
+                        InputMethodManager imm = (InputMethodManager) TextToSpeechActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        Toast.makeText(TextToSpeechActivity.this, "Hide the keyboard first!", Toast.LENGTH_SHORT).show();
+                        hideKeyboard(TextToSpeechActivity.this);
+                        spellCheckerSession.getSentenceSuggestions(new TextInfo[]{ new TextInfo(text) }, SUGGESTION_LIMIT);
+                        Log.d(TAG, "onClick: SPELL CHECK CLICKED: " + text);
+                        break;
+                    }
             }
-
-
         }
     }
 
