@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.service.textservice.SpellCheckerService;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
@@ -33,11 +32,14 @@ import android.view.textservice.SpellCheckerSession;
 import android.view.textservice.SuggestionsInfo;
 import android.view.textservice.TextInfo;
 import android.view.textservice.TextServicesManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,23 +48,27 @@ import java.util.Set;
 
 public class TextToSpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener, SpellCheckerSession.SpellCheckerSessionListener {
 
+    //Text To Speech
     private static TextToSpeech textToSpeech;
-    private static final String TAG = "mTTS";
-    private static final int CLANGACT = 101;
-    private static final int SPLCHK = 102;
-    private static final Locale DEFAULT_LANG = Locale.ITALIAN;
-    private static final int SUGGESTION_LIMIT = 5;
-    private EditText etInputText;
+    private static final String TAG = "TTS&SPELL";
+    private static final int LANG_ACTIVITY = 101;
+
+    //Ui
+    private AutoCompleteTextView etInputText;
     private TextView tvLang;
     private String editTextInput;
-    private Locale locale;
-    private Locale lastLang = DEFAULT_LANG;
 
+
+    //SpellChecker
     private static SpellCheckerSession spellCheckerSession;
+    private static final int SUGGESTION_LIMIT = 5;
 
     //Lingue
-    ArrayList<Locale> languagesList = new ArrayList<Locale>();
+    ArrayList<Locale> languagesList = new ArrayList<>();
     Set<Locale> languagesSet = new HashSet<>();
+    private static final Locale DEFAULT_LANG = Locale.ITALIAN;
+    private Locale locale;
+    private Locale lastLang = DEFAULT_LANG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +77,13 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         etInputText = findViewById(R.id.etInputText);
         tvLang = findViewById(R.id.tvLang);
 
+
         new Holder();
 
         if (savedInstanceState != null) {
             etInputText.setText(savedInstanceState.get("editText").toString());
             locale = Locale.forLanguageTag(savedInstanceState.getString("lang"));
-            tvLang.setText("Language: " +locale.getDisplayLanguage().toUpperCase());
+            tvLang.setText(String.format("Language: %s", locale.getDisplayLanguage().toUpperCase()));
         }
 
         //Inizializza il tts, primo this è il context, il secondo l'onInitListener
@@ -101,7 +108,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 result = textToSpeech.setLanguage(DEFAULT_LANG); //Default Language is Italian
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
-                } else tvLang.setText("Language: "+DEFAULT_LANG.getDisplayLanguage().substring(0,1).toUpperCase() + DEFAULT_LANG.getDisplayLanguage().substring(1));
+                } else tvLang.setText(String.format("Language: %s%s", DEFAULT_LANG.getDisplayLanguage().substring(0, 1).toUpperCase(), DEFAULT_LANG.getDisplayLanguage().substring(1)));
             }
             else {
                 //locale != null significa che + stata selezionata una lingua
@@ -109,7 +116,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e(TAG, "onInit: LANGUAGE NOT AVAILABLE");
                 }
-                else tvLang.setText("Language: "+locale.getDisplayLanguage().substring(0,1).toUpperCase() + locale.getDisplayLanguage().substring(1));
+                else tvLang.setText(String.format("Language: %s%s", locale.getDisplayLanguage().substring(0, 1).toUpperCase(), locale.getDisplayLanguage().substring(1)));
             }
 
         } else {
@@ -163,7 +170,11 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         //Inizializza lo Spell Check Service
         Log.d(TAG, "onResume: SPELL CHECKER INIT WITH LANG: "+ (lastLang == null ? DEFAULT_LANG : lastLang).getDisplayLanguage());
         final TextServicesManager textServicesManager = (TextServicesManager) getSystemService(Context.TEXT_SERVICES_MANAGER_SERVICE);
-        spellCheckerSession = textServicesManager.newSpellCheckerSession(null, lastLang == null ? DEFAULT_LANG : lastLang, this, false);
+        if (textServicesManager != null) {
+            spellCheckerSession = textServicesManager.newSpellCheckerSession(null, lastLang == null ? DEFAULT_LANG : lastLang, this, false);
+        } else {
+            Toast.makeText(TextToSpeechActivity.this, "Error at the spell checker initializer", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
@@ -193,8 +204,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
 
     @Override
     public void onGetSentenceSuggestions(SentenceSuggestionsInfo[] results) {
-        //TODO: Display Suggestions
-        final StringBuffer sb = new StringBuffer("");
+        final ArrayList<String> suggestions = new ArrayList<>();
         for(SentenceSuggestionsInfo result:results){
             int n = result.getSuggestionsCount();
             for(int i=0; i < n; i++){
@@ -203,13 +213,14 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                 //if((result.getSuggestionsInfoAt(i).getSuggestionsAttributes() & SuggestionsInfo.RESULT_ATTR_LOOKS_LIKE_TYPO) != SuggestionsInfo.RESULT_ATTR_LOOKS_LIKE_TYPO)
                 //    continue;
                 for(int k=0; k < m; k++) {
-                    sb.append(result.getSuggestionsInfoAt(i).getSuggestionAt(k))
-                            .append("\n");
+                    suggestions.add(result.getSuggestionsInfoAt(i).getSuggestionAt(k));
                 }
-                sb.append("\n");
             }
         }
-        Log.d(TAG, "onGetSentenceSuggestions: " + sb);
+        Log.d(TAG, "onGetSentenceSuggestions: " + suggestions);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, suggestions);
+        etInputText.setAdapter(arrayAdapter);
+        etInputText.showDropDown();
     }
 
     //Metodo per chiudere la tastiera
@@ -221,7 +232,9 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         if (view == null) {
             view = new View(activity);
         }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     /*
@@ -272,17 +285,16 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     class Holder implements View.OnClickListener{
 
         private SeekBar seekBarSpeed, seekBarPitch;
-        private Button btnPlay, btnStop, btnLanguage, btnSpellCheck;
 
         Holder () {
 
             //Altre view
             seekBarPitch = findViewById(R.id.seekBarPitch);
             seekBarSpeed = findViewById(R.id.seekBarSpeed);
-            btnPlay = findViewById(R.id.btnPlay);
-            btnStop = findViewById(R.id.btnStop);
-            btnLanguage = findViewById(R.id.btnLanguage);
-            btnSpellCheck = findViewById(R.id.btnSpellCheck);
+            Button btnPlay = findViewById(R.id.btnPlay);
+            Button btnStop = findViewById(R.id.btnStop);
+            Button btnLanguage = findViewById(R.id.btnLanguage);
+            Button btnSpellCheck = findViewById(R.id.btnSpellCheck);
 
             btnLanguage.setOnClickListener(this);
             btnPlay.setOnClickListener(this);
@@ -334,7 +346,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                      * E poi passare params come terzo parametro al metodo speak()
                      * */
 
-                    if (etInputText.getText().length() > textToSpeech.getMaxSpeechInputLength()) {
+                    if (etInputText.getText().length() > TextToSpeech.getMaxSpeechInputLength()) {
                         Toast.makeText(TextToSpeechActivity.this, "Text is too long!", Toast.LENGTH_SHORT).show();
                     }
                     textToSpeech.speak(etInputText.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, "textToSpeechUtteranceID");
@@ -353,7 +365,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                     if (textToSpeech.isSpeaking()) textToSpeech.stop();
                     Intent langIntent = new Intent(TextToSpeechActivity.this, ChangeLanguageActivity.class);
                     langIntent.putExtra("avLanguages", languagesList);
-                    startActivityForResult(langIntent, CLANGACT);
+                    startActivityForResult(langIntent, LANG_ACTIVITY);
                     break;
 
                     //Perform Spell Check Button
@@ -364,10 +376,10 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
                         break;
                     }
                     else {
-                        InputMethodManager imm = (InputMethodManager) TextToSpeechActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                        Toast.makeText(TextToSpeechActivity.this, "Hide the keyboard first!", Toast.LENGTH_SHORT).show();
-                        hideKeyboard(TextToSpeechActivity.this);
-                        spellCheckerSession.getSentenceSuggestions(new TextInfo[]{ new TextInfo(text) }, SUGGESTION_LIMIT);
+                        //String[] sentence = text.split(" ");
+                        //String lastWord = sentence[sentence.length - 1];
+                        //TextInfo textInfo = new TextInfo(lastWord);
+                        spellCheckerSession.getSentenceSuggestions(new TextInfo[]{new TextInfo(text)}, SUGGESTION_LIMIT);
                         Log.d(TAG, "onClick: SPELL CHECK CLICKED: " + text);
                         break;
                     }
@@ -378,24 +390,24 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CLANGACT) {
+        if (requestCode == LANG_ACTIVITY) {
             if (resultCode == RESULT_OK) {
                 int result = data.getIntExtra("selectedLang", -1);
                 if (result == -1) {
                     textToSpeech.setLanguage(lastLang);
-                    tvLang.setText("Language: "+lastLang.getDisplayLanguage().substring(0,1).toUpperCase() + lastLang.getDisplayLanguage().substring(1));
+                    tvLang.setText(String.format("Language: %s%s", lastLang.getDisplayLanguage().substring(0, 1).toUpperCase(), lastLang.getDisplayLanguage().substring(1)));
                     Toast.makeText(this, "Language has not been changed", Toast.LENGTH_SHORT).show();
                 } else {
                     Locale selectedLoc = languagesList.get(result);
                     textToSpeech.setLanguage(selectedLoc);
                     lastLang = selectedLoc;
-                    tvLang.setText("Language: "+selectedLoc.getDisplayLanguage().substring(0,1).toUpperCase() + selectedLoc.getDisplayLanguage().substring(1));
+                    tvLang.setText(String.format("Language: %s%s", selectedLoc.getDisplayLanguage().substring(0, 1).toUpperCase(), selectedLoc.getDisplayLanguage().substring(1)));
                     Toast.makeText(this, "LANGUAGE: "+selectedLoc.getDisplayLanguage().toUpperCase(), Toast.LENGTH_SHORT).show();
                 }
             }
             else if (resultCode == RESULT_CANCELED) {
                 textToSpeech.setLanguage(lastLang);
-                tvLang.setText("Language: "+lastLang.getDisplayLanguage().substring(0,1).toUpperCase() + lastLang.getDisplayLanguage().substring(1));
+                tvLang.setText(String.format("Language: %s%s", lastLang.getDisplayLanguage().substring(0, 1).toUpperCase(), lastLang.getDisplayLanguage().substring(1)));
             }
         }
 
