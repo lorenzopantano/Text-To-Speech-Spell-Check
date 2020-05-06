@@ -38,12 +38,10 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 public class TextToSpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener, SpellCheckerSession.SpellCheckerSessionListener {
@@ -81,8 +79,8 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         new Holder();
 
         if (savedInstanceState != null) {
-            etInputText.setText(savedInstanceState.get("editText").toString());
-            locale = Locale.forLanguageTag(savedInstanceState.getString("lang"));
+            etInputText.setText(Objects.requireNonNull(savedInstanceState.get("editText")).toString());
+            locale = Locale.forLanguageTag(Objects.requireNonNull(savedInstanceState.getString("lang")));
             tvLang.setText(String.format("Language: %s", locale.getDisplayLanguage().toUpperCase()));
         }
 
@@ -392,7 +390,7 @@ public class TextToSpeechActivity extends AppCompatActivity implements TextToSpe
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LANG_ACTIVITY) {
             if (resultCode == RESULT_OK) {
-                int result = data.getIntExtra("selectedLang", -1);
+                int result = data != null ? data.getIntExtra("selectedLang", -1) : -1;
                 if (result == -1) {
                     textToSpeech.setLanguage(lastLang);
                     tvLang.setText(String.format("Language: %s%s", lastLang.getDisplayLanguage().substring(0, 1).toUpperCase(), lastLang.getDisplayLanguage().substring(1)));
