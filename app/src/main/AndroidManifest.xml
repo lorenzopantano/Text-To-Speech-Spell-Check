@@ -11,11 +11,14 @@
         android:theme="@style/Theme.Design.NoActionBar">
         <activity
             android:name=".ChangeLanguageActivity"
-            android:parentActivityName=".TextToSpeechActivity" />
-        <activity android:name=".TextToSpeechActivity"
-            android:windowSoftInputMode="adjustPan">
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustPan|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
